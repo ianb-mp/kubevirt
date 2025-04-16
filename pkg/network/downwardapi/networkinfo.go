@@ -21,7 +21,6 @@ package downwardapi
 
 import (
 	"encoding/json"
-	"maps"
 	"slices"
 
 	networkv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
@@ -48,6 +47,7 @@ func CreateNetworkInfoAnnotationValue(networkDeviceInfoMap map[string]*networkv1
 }
 
 /*
+// original unsorted implementation
 func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) NetworkInfo {
 	var downwardAPIInterfaces []Interface
 	for networkName, deviceInfo := range networkDeviceInfoMap {
@@ -58,14 +58,37 @@ func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) 
 }
 */
 
+/*
+// suggested Kubevirt 1.5.0+ implementation (go1.23)
 func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) NetworkInfo {
 	var downwardAPIInterfaces []Interface
 
 	sortedNetNames := slices.Sorted(maps.Keys(networkDeviceInfoMap))
 	for _, networkName := range sortedNetNames {
-		deviceInfo := networkDeviceInfoMap[networkName]
+	         deviceInfo := networkDeviceInfoMap[networkName]
 		downwardAPIInterfaces = append(downwardAPIInterfaces, Interface{Network: networkName, DeviceInfo: deviceInfo})
 	}
 	networkInfo := NetworkInfo{Interfaces: downwardAPIInterfaces}
 	return networkInfo
+}
+*/
+
+// This sort implementation is compatible with Kubevirt 1.4.0 (go1.22)
+func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) NetworkInfo {
+	var downwardAPIInterfaces []Interface
+	// Get sorted keys
+	keys := make([]string, 0, len(networkDeviceInfoMap))
+	for key := range networkDeviceInfoMap {
+		keys = append(keys, key)
+	}
+	slices.Sort(keys)
+
+	// Iterate over sorted keys
+	for _, networkName := range keys {
+		downwardAPIInterfaces = append(downwardAPIInterfaces, Interface{
+			Network:    networkName,
+			DeviceInfo: networkDeviceInfoMap[networkName],
+		})
+	}
+	return NetworkInfo{Interfaces: downwardAPIInterfaces}
 }
