@@ -21,6 +21,7 @@ package downwardapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"slices"
 
 	networkv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
@@ -82,6 +83,8 @@ func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) 
 		keys = append(keys, key)
 	}
 	slices.Sort(keys)
+
+	fmt.Printf("generateNetworkInfo, sorted keys %v\n", keys)
 
 	// Iterate over sorted keys
 	for _, networkName := range keys {
