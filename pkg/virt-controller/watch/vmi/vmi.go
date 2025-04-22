@@ -319,13 +319,16 @@ func (c *Controller) execute(key string) error {
 	}
 
 	syncErr, pod := c.sync(vmi, pod, dataVolumes)
+	fmt.Printf("execute after sync, syncErr %v\n", syncErr)
 
 	err = c.updateStatus(vmi, pod, dataVolumes, syncErr)
 	if err != nil {
+		fmt.Printf("update status error %v\n", err)
 		return err
 	}
 
 	if syncErr != nil && syncErr.RequiresRequeue() {
+		fmt.Printf("execute syncErr requires requeue\n")
 		return syncErr
 	}
 
