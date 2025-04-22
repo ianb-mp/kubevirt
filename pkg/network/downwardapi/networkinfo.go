@@ -21,6 +21,9 @@ package downwardapi
 
 import (
 	"encoding/json"
+	"fmt"
+	"maps"
+	"slices"
 
 	networkv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 
@@ -45,9 +48,26 @@ func CreateNetworkInfoAnnotationValue(networkDeviceInfoMap map[string]*networkv1
 	return string(networkInfoBytes)
 }
 
+/*
+// original unsorted implementation
 func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) NetworkInfo {
 	var downwardAPIInterfaces []Interface
 	for networkName, deviceInfo := range networkDeviceInfoMap {
+		downwardAPIInterfaces = append(downwardAPIInterfaces, Interface{Network: networkName, DeviceInfo: deviceInfo})
+	}
+	networkInfo := NetworkInfo{Interfaces: downwardAPIInterfaces}
+	return networkInfo
+}
+*/
+
+// suggested Kubevirt 1.5.0+ implementation (go1.23)
+func generateNetworkInfo(networkDeviceInfoMap map[string]*networkv1.DeviceInfo) NetworkInfo {
+	var downwardAPIInterfaces []Interface
+
+	sortedNetNames := slices.Sorted(maps.Keys(networkDeviceInfoMap))
+	fmt.Printf("generateNetworkInfo, sortedNetNames: %v\n", sortedNetNames)
+	for _, networkName := range sortedNetNames {
+		deviceInfo := networkDeviceInfoMap[networkName]
 		downwardAPIInterfaces = append(downwardAPIInterfaces, Interface{Network: networkName, DeviceInfo: deviceInfo})
 	}
 	networkInfo := NetworkInfo{Interfaces: downwardAPIInterfaces}

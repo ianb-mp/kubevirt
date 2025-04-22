@@ -233,6 +233,8 @@ func (c *Controller) Execute() bool {
 		return false
 	}
 
+	fmt.Printf("Execute called with key: %s\n", key)
+
 	virtControllerVMIWorkQueueTracer.StartTrace(key, "virt-controller VMI workqueue", trace.Field{Key: "Workqueue Key", Value: key})
 	defer virtControllerVMIWorkQueueTracer.StopTrace(key)
 
@@ -240,9 +242,12 @@ func (c *Controller) Execute() bool {
 	err := c.execute(key)
 
 	if err != nil {
+		fmt.Printf("Execute key %v err: %v\n", key, err)
+
 		log.Log.Reason(err).Infof("reenqueuing VirtualMachineInstance %v", key)
 		c.Queue.AddRateLimited(key)
 	} else {
+		fmt.Printf("Execute %v no err\n", key)
 		log.Log.V(4).Infof("processed VirtualMachineInstance %v", key)
 		c.Queue.Forget(key)
 	}
