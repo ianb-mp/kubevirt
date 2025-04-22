@@ -253,9 +253,11 @@ func (c *Controller) Execute() bool {
 	err := c.execute(key)
 
 	if err != nil {
+		fmt.Printf("Execute err: %v\n", err)
 		log.Log.Reason(err).Infof("reenqueuing VirtualMachineInstance %v", key)
 		c.Queue.AddRateLimited(key)
 	} else {
+		fmt.Printf("Execute no err\n")
 		log.Log.V(4).Infof("processed VirtualMachineInstance %v", key)
 		c.Queue.Forget(key)
 	}
@@ -320,6 +322,8 @@ func (c *Controller) execute(key string) error {
 	}
 
 	syncErr, pod := c.sync(vmi, pod, dataVolumes)
+
+	fmt.Printf("after sync, syncErr: %v\n", syncErr)
 
 	err = c.updateStatus(vmi, pod, dataVolumes, syncErr)
 	if err != nil {
@@ -402,6 +406,7 @@ func (c *Controller) syncPodAnnotations(pod *k8sv1.Pod, newAnnotations map[strin
 		}
 	}
 	if patchSet.IsEmpty() {
+		fmt.Printf("patchSet.IsEmpty %s/%s\n", pod.Namespace, pod.Name)
 		return pod, nil
 	}
 
