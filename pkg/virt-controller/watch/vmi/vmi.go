@@ -243,6 +243,8 @@ func (c *Controller) Execute() bool {
 		return false
 	}
 
+	fmt.Printf("Execute %v\n", key)
+
 	virtControllerVMIWorkQueueTracer.StartTrace(key.(string), "virt-controller VMI workqueue", trace.Field{Key: "Workqueue Key", Value: key})
 	defer virtControllerVMIWorkQueueTracer.StopTrace(key.(string))
 
@@ -393,12 +395,14 @@ func (c *Controller) syncPodAnnotations(pod *k8sv1.Pod, newAnnotations map[strin
 	patchSet := patch.New()
 	for key, newValue := range newAnnotations {
 		if podAnnotationValue, keyExist := pod.Annotations[key]; !keyExist || (keyExist && podAnnotationValue != newValue) {
+			fmt.Printf("syncPodAnnotations /metadata/annotations/%s", patch.EscapeJSONPointer(key))
 			patchSet.AddOption(
 				patch.WithAdd(fmt.Sprintf("/metadata/annotations/%s", patch.EscapeJSONPointer(key)), newValue),
 			)
 		}
 	}
 	if patchSet.IsEmpty() {
+		fmt.Printf("syncPodAnnotations empty patchSet, return")
 		return pod, nil
 	}
 
