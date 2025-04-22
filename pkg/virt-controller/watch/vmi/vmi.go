@@ -1393,6 +1393,7 @@ func (c *Controller) deletePod(obj interface{}) {
 
 func (c *Controller) addVirtualMachineInstance(obj interface{}) {
 	c.lowerVMIExpectation(obj)
+	fmt.Printf("addVirtualMachineInstance VMI: %v\n", obj)
 	c.enqueueVirtualMachine(obj)
 }
 
@@ -1415,11 +1416,13 @@ func (c *Controller) deleteVirtualMachineInstance(obj interface{}) {
 		}
 	}
 	c.lowerVMIExpectation(vmi)
+	fmt.Printf("deleteVirtualMachineInstance VMI: %v\n", vmi)
 	c.enqueueVirtualMachine(vmi)
 }
 
 func (c *Controller) updateVirtualMachineInstance(_, curr interface{}) {
 	c.lowerVMIExpectation(curr)
+	fmt.Printf("updateVirtualMachineInstance VMI: %v\n", curr)
 	c.enqueueVirtualMachine(curr)
 }
 
