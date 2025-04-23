@@ -60,7 +60,8 @@ function docker_push_manifest() {
 }
 
 export DOCKER_CLI_EXPERIMENTAL=enabled
-for image in $(find ${DIGESTS_DIR}/*/bazel-bin/ -name '*.digest' -printf '%f\n' | sed s/^push-//g | sed s/\.digest$//g | sort -u); do
+#for image in $(find ${DIGESTS_DIR}/*/bazel-bin/ -name '*.digest' -printf '%f\n' | sed s/^push-//g | sed s/\.digest$//g | sort -u); do
+for image in "virt-controller"; do
     if [ "${KUBEVIRT_CRI}" = "podman" ]; then
         podman_push_manifest $image
     else
