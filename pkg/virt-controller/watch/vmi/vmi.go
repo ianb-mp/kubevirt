@@ -1432,7 +1432,7 @@ func (c *Controller) deleteVirtualMachineInstance(obj interface{}) {
 
 func (c *Controller) updateVirtualMachineInstance(_, curr interface{}) {
 	c.lowerVMIExpectation(curr)
-	fmt.Printf("enqueueVM updateVirtualMachineInstance\n")
+	fmt.Printf("enqueueVM updateVirtualMachineInstance, curr %v\n", curr)
 	c.enqueueVirtualMachine(curr)
 }
 
