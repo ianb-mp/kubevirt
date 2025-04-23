@@ -1181,6 +1181,7 @@ func (c *Controller) addPVC(obj interface{}) {
 	}
 	for _, vmi := range vmis {
 		log.Log.V(4).Object(pvc).Infof("PVC created for vmi %s", vmi.Name)
+		fmt.Printf("enqueueVM addPVC\n")
 		c.enqueueVirtualMachine(vmi)
 	}
 }
@@ -1210,6 +1211,7 @@ func (c *Controller) updatePVC(old, cur interface{}) {
 
 	for _, vmi := range vmis {
 		log.Log.V(4).Object(curPVC).Infof("PVC updated for vmi %s", vmi.Name)
+		fmt.Printf("enqueueVM updatePVC\n")
 		c.enqueueVirtualMachine(vmi)
 	}
 }
@@ -1227,6 +1229,7 @@ func (c *Controller) addDataVolume(obj interface{}) {
 	}
 	for _, vmi := range vmis {
 		log.Log.V(4).Object(dataVolume).Infof("DataVolume created for vmi %s", vmi.Name)
+		fmt.Printf("enqueueVM addDataVolume\n")
 		c.enqueueVirtualMachine(vmi)
 	}
 }
@@ -1260,6 +1263,7 @@ func (c *Controller) updateDataVolume(old, cur interface{}) {
 	}
 	for _, vmi := range vmis {
 		log.Log.V(4).Object(curDataVolume).Infof("DataVolume updated for vmi %s", vmi.Name)
+		fmt.Printf("enqueueVM updateDataVolume\n")
 		c.enqueueVirtualMachine(vmi)
 	}
 }
@@ -1287,6 +1291,7 @@ func (c *Controller) deleteDataVolume(obj interface{}) {
 	}
 	for _, vmi := range vmis {
 		log.Log.V(4).Object(dataVolume).Infof("DataVolume deleted for vmi %s", vmi.Name)
+		fmt.Printf("enqueueVM deleteDataVolume\n")
 		c.enqueueVirtualMachine(vmi)
 	}
 }
@@ -1313,6 +1318,7 @@ func (c *Controller) addPod(obj interface{}) {
 	}
 	log.Log.V(4).Object(pod).Infof("Pod created")
 	c.podExpectations.CreationObserved(vmiKey)
+	fmt.Printf("enqueueVM addPod\n")
 	c.enqueueVirtualMachine(vmi)
 }
 
@@ -1345,6 +1351,7 @@ func (c *Controller) updatePod(old, cur interface{}) {
 	if controllerRefChanged {
 		// The ControllerRef was changed. Sync the old controller, if any.
 		if vmi := c.resolveControllerRef(oldPod.Namespace, oldControllerRef); vmi != nil {
+			fmt.Printf("enqueueVM updatePod controllerRef\n")
 			c.enqueueVirtualMachine(vmi)
 		}
 	}
@@ -1354,6 +1361,7 @@ func (c *Controller) updatePod(old, cur interface{}) {
 		return
 	}
 	log.Log.V(4).Object(curPod).Infof("Pod updated")
+	fmt.Printf("enqueueVM updatePod\n")
 	c.enqueueVirtualMachine(vmi)
 }
 
@@ -1389,11 +1397,13 @@ func (c *Controller) deletePod(obj interface{}) {
 		return
 	}
 	c.podExpectations.DeletionObserved(vmiKey, controller.PodKey(pod))
+	fmt.Printf("enqueueVM deletePod\n")
 	c.enqueueVirtualMachine(vmi)
 }
 
 func (c *Controller) addVirtualMachineInstance(obj interface{}) {
 	c.lowerVMIExpectation(obj)
+	fmt.Printf("enqueueVM addVirtualMachineInstance\n")
 	c.enqueueVirtualMachine(obj)
 }
 
@@ -1416,11 +1426,13 @@ func (c *Controller) deleteVirtualMachineInstance(obj interface{}) {
 		}
 	}
 	c.lowerVMIExpectation(vmi)
+	fmt.Printf("enqueueVM deleteVirtualMachineInstance\n")
 	c.enqueueVirtualMachine(vmi)
 }
 
 func (c *Controller) updateVirtualMachineInstance(_, curr interface{}) {
 	c.lowerVMIExpectation(curr)
+	fmt.Printf("enqueueVM updateVirtualMachineInstance\n")
 	c.enqueueVirtualMachine(curr)
 }
 
