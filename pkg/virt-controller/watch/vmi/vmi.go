@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
@@ -1433,6 +1434,7 @@ func (c *Controller) deleteVirtualMachineInstance(obj interface{}) {
 func (c *Controller) updateVirtualMachineInstance(_, curr interface{}) {
 	c.lowerVMIExpectation(curr)
 	fmt.Printf("enqueueVM updateVirtualMachineInstance, curr %v\n", curr)
+	debug.PrintStack()
 	c.enqueueVirtualMachine(curr)
 }
 
