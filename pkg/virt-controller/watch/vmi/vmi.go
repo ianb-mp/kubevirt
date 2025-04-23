@@ -20,10 +20,10 @@ package vmi
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
-	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
@@ -1433,8 +1433,9 @@ func (c *Controller) deleteVirtualMachineInstance(obj interface{}) {
 
 func (c *Controller) updateVirtualMachineInstance(_, curr interface{}) {
 	c.lowerVMIExpectation(curr)
-	fmt.Printf("enqueueVM updateVirtualMachineInstance, curr %v\n", curr)
-	debug.PrintStack()
+	currJ, _ := json.Marshal(curr)
+	fmt.Printf("enqueueVM updateVirtualMachineInstance, curr %s\n", currJ)
+	//	debug.PrintStack()
 	c.enqueueVirtualMachine(curr)
 }
 
