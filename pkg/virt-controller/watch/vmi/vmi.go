@@ -811,6 +811,8 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 		}
 	}
 
+	fmt.Printf("updateNetworkStatus /status/interfaces %v %v\n", oldVMI.Status.Interfaces, newVMI.Status.Interfaces)
+
 	if !equality.Semantic.DeepEqual(newVMI.Status.Interfaces, oldVMI.Status.Interfaces) {
 		patchSet.AddOption(
 			patch.WithTest("/status/interfaces", oldVMI.Status.Interfaces),
