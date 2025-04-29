@@ -20,6 +20,7 @@ package vmi
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -811,7 +812,9 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 		}
 	}
 
-	fmt.Printf("updateNetworkStatus /status/interfaces %v %v\n", oldVMI.Status.Interfaces, newVMI.Status.Interfaces)
+	oldJ, _ := json.Marshal(oldVMI.Status.Interfaces)
+	newJ, _ := json.Marshal(newVMI.Status.Interfaces)
+	fmt.Printf("updateNetworkStatus /status/interfaces\n%s\n%s\n", oldJ, newJ)
 
 	if !equality.Semantic.DeepEqual(newVMI.Status.Interfaces, oldVMI.Status.Interfaces) {
 		patchSet.AddOption(
