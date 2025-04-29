@@ -811,9 +811,9 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 		}
 	}
 
-	fmt.Printf("updateNetworkStatus /status/interfaces\n%+v\n%+v\n", oldVMI.Status.Interfaces, newVMI.Status.Interfaces)
-
 	if !equality.Semantic.DeepEqual(newVMI.Status.Interfaces, oldVMI.Status.Interfaces) {
+		fmt.Printf("updateNetworkStatus interfaces changed\n")
+		fmt.Printf("updateNetworkStatus /status/interfaces\n%+v\n%+v\n", oldVMI.Status.Interfaces, newVMI.Status.Interfaces)
 		patchSet.AddOption(
 			patch.WithTest("/status/interfaces", oldVMI.Status.Interfaces),
 			patch.WithAdd("/status/interfaces", newVMI.Status.Interfaces),
@@ -821,6 +821,7 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 		log.Log.V(3).Object(oldVMI).Infof("Patching Interface Status")
 	}
 
+	fmt.Printf("updateNetworkStatus patchset %+v\n", patchSet)
 	return patchSet
 }
 
@@ -1424,7 +1425,6 @@ func (c *Controller) deleteVirtualMachineInstance(obj interface{}) {
 
 func (c *Controller) updateVirtualMachineInstance(_, curr interface{}) {
 	c.lowerVMIExpectation(curr)
-	fmt.Printf("updateVirtualMachineInstance VMI: %v\n", curr)
 	c.enqueueVirtualMachine(curr)
 }
 
