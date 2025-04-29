@@ -19,7 +19,6 @@
 package vmi
 
 import (
-	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -812,17 +811,19 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 		}
 	}
 
-	cmpFunc := func(a, b virtv1.VirtualMachineInstanceNetworkInterface) int {
-		return cmp.Compare(a.InterfaceName, b.InterfaceName)
-	}
+	/*
+		cmpFunc := func(a, b virtv1.VirtualMachineInstanceNetworkInterface) int {
+			return cmp.Compare(a.InterfaceName, b.InterfaceName)
+		}
 
-	// Sort both slices
-	sort.Slice(oldVMI.Status.Interfaces, func(i, j int) bool {
-		return cmpFunc(oldVMI.Status.Interfaces[i], oldVMI.Status.Interfaces[j]) < 0
-	})
-	sort.Slice(newVMI.Status.Interfaces, func(i, j int) bool {
-		return cmpFunc(newVMI.Status.Interfaces[i], newVMI.Status.Interfaces[j]) < 0
-	})
+		// Sort both slices
+		sort.Slice(oldVMI.Status.Interfaces, func(i, j int) bool {
+			return cmpFunc(oldVMI.Status.Interfaces[i], oldVMI.Status.Interfaces[j]) < 0
+		})
+		sort.Slice(newVMI.Status.Interfaces, func(i, j int) bool {
+			return cmpFunc(newVMI.Status.Interfaces[i], newVMI.Status.Interfaces[j]) < 0
+		})
+	*/
 
 	if !equality.Semantic.DeepEqual(newVMI.Status.Interfaces, oldVMI.Status.Interfaces) {
 		fmt.Printf("updateNetworkStatus interfaces changed\n")
