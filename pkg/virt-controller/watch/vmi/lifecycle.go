@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"slices"
 	"strings"
 
 	k8sv1 "k8s.io/api/core/v1"
@@ -547,6 +548,14 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 			)
 		}
 	}
+
+	// Sort network interfaces by name to ensure that the order does not affect the equality check.
+	// Prior to this an API patch flood would occur - see: https://github.com/kubevirt/kubevirt/issues/14442
+	cmpFunc := func(a, b virtv1.VirtualMachineInstanceNetworkInterface) int {
+		return strings.Compare(a.Name, b.Name)
+	}
+	slices.SortFunc(oldVMI.Status.Interfaces, cmpFunc)
+	slices.SortFunc(newVMI.Status.Interfaces, cmpFunc)
 
 	// TODO(vladikr): Move to networking
 	if !equality.Semantic.DeepEqual(newVMI.Status.Interfaces, oldVMI.Status.Interfaces) {

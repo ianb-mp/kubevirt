@@ -214,7 +214,10 @@ var _ = Describe("VirtualMachineInstance watcher", func() {
 		var qemuGid int64 = 107
 
 		stubNetStatusUpdate := func(vmi *virtv1.VirtualMachineInstance, _ *k8sv1.Pod) error {
-			vmi.Status.Interfaces = append(vmi.Status.Interfaces, virtv1.VirtualMachineInstanceNetworkInterface{Name: "stubNetStatusUpdate"})
+			vmi.Status.Interfaces = append(vmi.Status.Interfaces,
+				virtv1.VirtualMachineInstanceNetworkInterface{Name: "stubNetStatusUpdate1"},
+				virtv1.VirtualMachineInstanceNetworkInterface{Name: "stubNetStatusUpdate2"},
+			)
 			return nil
 		}
 
@@ -1297,7 +1300,10 @@ var _ = Describe("VirtualMachineInstance watcher", func() {
 
 			updatedVMI, err := virtClientset.KubevirtV1().VirtualMachineInstances(vmi.Namespace).Get(context.Background(), vmi.Name, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
-			Expect(updatedVMI.Status.Interfaces).To(Equal([]virtv1.VirtualMachineInstanceNetworkInterface{{Name: "stubNetStatusUpdate"}}), "Network status update wasn't called")
+			Expect(updatedVMI.Status.Interfaces).To(Equal([]virtv1.VirtualMachineInstanceNetworkInterface{
+				{Name: "stubNetStatusUpdate1"},
+				{Name: "stubNetStatusUpdate2"},
+			}), "Network status update wasn't called")
 		},
 			Entry("with running compute container and no infra container",
 				[]k8sv1.ContainerStatus{{
