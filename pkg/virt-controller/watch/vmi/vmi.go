@@ -24,7 +24,6 @@ import (
 	"errors"
 	"fmt"
 	"maps"
-	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -811,12 +810,14 @@ func prepareVMIPatch(oldVMI, newVMI *virtv1.VirtualMachineInstance) *patch.Patch
 		}
 	}
 
-	// Sort interfaces by name to ensure that the order does not affect the equality check.
-	cmpFunc := func(a, b virtv1.VirtualMachineInstanceNetworkInterface) int {
-		return strings.Compare(a.Name, b.Name)
-	}
-	slices.SortFunc(oldVMI.Status.Interfaces, cmpFunc)
-	slices.SortFunc(newVMI.Status.Interfaces, cmpFunc)
+	/*
+		// Sort interfaces by name to ensure that the order does not affect the equality check.
+		cmpFunc := func(a, b virtv1.VirtualMachineInstanceNetworkInterface) int {
+			return strings.Compare(a.Name, b.Name)
+		}
+		slices.SortFunc(oldVMI.Status.Interfaces, cmpFunc)
+		slices.SortFunc(newVMI.Status.Interfaces, cmpFunc)
+	*/
 
 	if !equality.Semantic.DeepEqual(newVMI.Status.Interfaces, oldVMI.Status.Interfaces) {
 		fmt.Printf("interfaces NOT equal:\n%+v\n%+v\n", oldVMI.Status.Interfaces, newVMI.Status.Interfaces)
