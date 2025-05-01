@@ -214,10 +214,7 @@ var _ = Describe("VirtualMachineInstance watcher", func() {
 		var qemuGid int64 = 107
 
 		stubNetStatusUpdate := func(vmi *virtv1.VirtualMachineInstance, _ *k8sv1.Pod) error {
-			vmi.Status.Interfaces = append(vmi.Status.Interfaces,
-				virtv1.VirtualMachineInstanceNetworkInterface{Name: "stubNetStatusUpdate1"},
-				virtv1.VirtualMachineInstanceNetworkInterface{Name: "stubNetStatusUpdate2"},
-			)
+			vmi.Status.Interfaces = append(vmi.Status.Interfaces, virtv1.VirtualMachineInstanceNetworkInterface{Name: "stubNetStatusUpdate"})
 			return nil
 		}
 
@@ -833,6 +830,26 @@ var _ = Describe("VirtualMachineInstance watcher", func() {
 		})
 	})
 
+	Context("VMI patch", func() {
+		It("should create status network interfaces patch with value sorted by name", func() {
+			oldVMI := newPendingVirtualMachine("oldvmi")
+			newVMI := newPendingVirtualMachine("newvmi")
+
+			oldVMI.Status.Interfaces = []virtv1.VirtualMachineInstanceNetworkInterface{
+				{Name: "stubNetStatusUpdate2"},
+				{Name: "stubNetStatusUpdate1"},
+			}
+			newVMI.Status.Interfaces = []virtv1.VirtualMachineInstanceNetworkInterface{
+				{Name: "stubNetStatusUpdate1"},
+				{Name: "stubNetStatusUpdate2"},
+			}
+
+			patch := prepareVMIPatch(oldVMI, newVMI)
+
+			Expect(patch).ToNot(BeNil(), "Patch should not be nil")
+		})
+	})
+
 	It("should fail which when network VMI spec validator fail", func() {
 		controller.validateNetworkSpec = validateNetVMISpecStub(metav1.StatusCause{Type: "test", Message: "test", Field: "test"})
 
@@ -1300,10 +1317,7 @@ var _ = Describe("VirtualMachineInstance watcher", func() {
 
 			updatedVMI, err := virtClientset.KubevirtV1().VirtualMachineInstances(vmi.Namespace).Get(context.Background(), vmi.Name, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
-			Expect(updatedVMI.Status.Interfaces).To(Equal([]virtv1.VirtualMachineInstanceNetworkInterface{
-				{Name: "stubNetStatusUpdate1"},
-				{Name: "stubNetStatusUpdate2"},
-			}), "Network status update wasn't called")
+			Expect(updatedVMI.Status.Interfaces).To(Equal([]virtv1.VirtualMachineInstanceNetworkInterface{{Name: "stubNetStatusUpdate"}}), "Network status update wasn't called")
 		},
 			Entry("with running compute container and no infra container",
 				[]k8sv1.ContainerStatus{{
